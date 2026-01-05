@@ -20,8 +20,8 @@ jobs:
           $out = Get-ChildItem -Filter "test_ok_27check_*.md" | Sort-Object LastWriteTime | Select-Object -Last 1
           if (-not $out) { throw "Output md not found for test_ok" }
 
-          # UTF-8として読み込み（BOMあり・なし両対応）
-          $txt = Get-Content $out.FullName -Raw -Encoding UTF8
+          # .NET APIでUTF-8として読み込み
+          $txt = [System.IO.File]::ReadAllText($out.FullName, [System.Text.Encoding]::UTF8)
 
           # デバッグ: 内容を表示
           Write-Host "=== Output file content (test_ok) ==="
@@ -42,8 +42,8 @@ jobs:
           $out = Get-ChildItem -Filter "test_ng_27check_*.md" | Sort-Object LastWriteTime | Select-Object -Last 1
           if (-not $out) { throw "Output md not found for test_ng" }
 
-          # UTF-8として読み込み
-          $txt = Get-Content $out.FullName -Raw -Encoding UTF8
+          # .NET APIでUTF-8として読み込み
+          $txt = [System.IO.File]::ReadAllText($out.FullName, [System.Text.Encoding]::UTF8)
 
           # デバッグ: 内容を表示
           Write-Host "=== Output file content (test_ng) ==="
