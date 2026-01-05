@@ -1,0 +1,30 @@
+name: test-27check
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run OK test
+        shell: pwsh
+        run: |
+          cscript //nologo .\27check.vbs .\test_ok.txt
+          $out = Get-ChildItem -Filter "test_ok_27check_*.md" | Sort-Object LastWriteTime | Select-Object -Last 1
+          if (-not $out) { throw "Output md not found for test_ok" }
+          $txt = Get-Content $out.FullName -Raw
+          if ($txt -notmatch "判定: OK") { throw "Expected 判定: OK" }
+          if ($txt -notmatch "違反数: 0") { throw "Expected 違反数: 0" }
+
+      - name: Run NG test
+        shell: pwsh
+        run: |
+          cscript //nologo .\27check.vbs .\test_ng.txt
+          $out = Get-ChildItem -Filter "test_ng_27check_*.md" | Sort-Object LastWriteTime | Select-Object -Last 1
+          if (-not $out) { throw "Output md not found for test_ng" }
+          $txt = Get-Content $out.FullName -Raw
+          if ($txt -notmatch "判定: NG") { throw "Expected 判定: NG" }
+          if ($txt -notmatch "違反数: 2") { throw "Expected 違反数: 2" }
