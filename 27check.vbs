@@ -211,13 +211,27 @@ Function ReadUtf8(path)
 End Function
 
 Sub WriteUtf8(path, textContent)
-  Dim stm : Set stm = CreateObject("ADODB.Stream")
-  stm.Type = 2 ' text
-  stm.Charset = "utf-8"
-  stm.Open
-  stm.WriteText textContent
-  stm.SaveToFile path, 2 ' adSaveCreateOverWrite
-  stm.Close
+  ' UTF-8テキストとして書き込み（BOM付き）
+  Dim stmUtf8 : Set stmUtf8 = CreateObject("ADODB.Stream")
+  stmUtf8.Type = 2 ' text
+  stmUtf8.Charset = "utf-8"
+  stmUtf8.Open
+  stmUtf8.WriteText textContent
+
+  ' バイナリモードに切り替えてBOMをスキップ
+  stmUtf8.Position = 0
+  stmUtf8.Type = 1 ' binary
+  stmUtf8.Position = 3 ' Skip BOM (3 bytes for UTF-8)
+
+  ' BOMなしでファイルに保存
+  Dim stmNoBOM : Set stmNoBOM = CreateObject("ADODB.Stream")
+  stmNoBOM.Type = 1 ' binary
+  stmNoBOM.Open
+  stmUtf8.CopyTo stmNoBOM
+  stmNoBOM.SaveToFile path, 2 ' adSaveCreateOverWrite
+
+  stmNoBOM.Close
+  stmUtf8.Close
 End Sub
 
 Sub OpenFile(path)
