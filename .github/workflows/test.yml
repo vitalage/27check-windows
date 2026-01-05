@@ -13,43 +13,19 @@ jobs:
       - name: Run OK test
         shell: pwsh
         run: |
-          # VBScriptを実行
           cscript //nologo .\27check.vbs .\test_ok.txt
-
-          # 出力ファイルを検索
           $out = Get-ChildItem -Filter "test_ok_27check_*.md" | Sort-Object LastWriteTime | Select-Object -Last 1
           if (-not $out) { throw "Output md not found for test_ok" }
-
-          # .NET APIでUTF-8として読み込み
           $txt = [System.IO.File]::ReadAllText($out.FullName, [System.Text.Encoding]::UTF8)
-
-          # デバッグ: 内容を表示
-          Write-Host "=== Output file content (test_ok) ==="
-          Write-Host $txt
-          Write-Host "=== End of content ==="
-
-          # 検証
           if ($txt -notmatch "判定: OK") { throw "Expected 判定: OK" }
           if ($txt -notmatch "違反数: 0") { throw "Expected 違反数: 0" }
 
       - name: Run NG test
         shell: pwsh
         run: |
-          # VBScriptを実行
           cscript //nologo .\27check.vbs .\test_ng.txt
-
-          # 出力ファイルを検索
           $out = Get-ChildItem -Filter "test_ng_27check_*.md" | Sort-Object LastWriteTime | Select-Object -Last 1
           if (-not $out) { throw "Output md not found for test_ng" }
-
-          # .NET APIでUTF-8として読み込み
           $txt = [System.IO.File]::ReadAllText($out.FullName, [System.Text.Encoding]::UTF8)
-
-          # デバッグ: 内容を表示
-          Write-Host "=== Output file content (test_ng) ==="
-          Write-Host $txt
-          Write-Host "=== End of content ==="
-
-          # 検証
           if ($txt -notmatch "判定: NG") { throw "Expected 判定: NG" }
           if ($txt -notmatch "違反数: 2") { throw "Expected 違反数: 2" }
